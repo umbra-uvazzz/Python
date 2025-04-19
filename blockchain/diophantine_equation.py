@@ -3,7 +3,7 @@ from __future__ import annotations
 from maths.greatest_common_divisor import greatest_common_divisor
 
 
-def diophantine(a: int, b: int, c: int) -> tuple[float, float]:
+def diophantine(a: int, b: int, c: int) -> tuple[int, int]: # ----Why float? You're solving for integers. These should be int, not float----
     """
     Diophantine Equation : Given integers a,b,c ( at least one of a and b != 0), the
     diophantine equation a*x + b*y = c has a solution (where x and y are integers)
@@ -12,10 +12,10 @@ def diophantine(a: int, b: int, c: int) -> tuple[float, float]:
     GCD ( Greatest Common Divisor ) or HCF ( Highest Common Factor )
 
     >>> diophantine(10,6,14)
-    (-7.0, 14.0)
+    (-7, 14)
 
     >>> diophantine(391,299,-69)
-    (9.0, -12.0)
+    (9, -12)
 
     But above equation has one more solution i.e., x = -4, y = 5.
     That's why we need diophantine all solution function.
@@ -26,11 +26,11 @@ def diophantine(a: int, b: int, c: int) -> tuple[float, float]:
         c % greatest_common_divisor(a, b) == 0
     )  # greatest_common_divisor(a,b) is in maths directory
     (d, x, y) = extended_gcd(a, b)  # extended_gcd(a,b) function implemented below
-    r = c / d
+    r = c // d # ----Added // instead of / to ensure integer division
     return (r * x, r * y)
 
 
-def diophantine_all_soln(a: int, b: int, c: int, n: int = 2) -> None:
+def diophantine_all_soln(a: int, b: int, c: int, n: int = 2) -> list[tuple[int, int]]:
     """
     Lemma : if n|ab and gcd(a,n) = 1, then n|b.
 
@@ -44,31 +44,26 @@ def diophantine_all_soln(a: int, b: int, c: int, n: int = 2) -> None:
     n is the number of solution you want, n = 2 by default
 
     >>> diophantine_all_soln(10, 6, 14)
-    -7.0 14.0
-    -4.0 9.0
-
+    [(-7, 14), (-4, 9)]
+    
     >>> diophantine_all_soln(10, 6, 14, 4)
-    -7.0 14.0
-    -4.0 9.0
-    -1.0 4.0
-    2.0 -1.0
-
-    >>> diophantine_all_soln(391, 299, -69, n = 4)
-    9.0 -12.0
-    22.0 -29.0
-    35.0 -46.0
-    48.0 -63.0
+    [(-7, 14), (-4, 9), (-1, 4), (2, -1)]
+    
+    >>> diophantine_all_soln(391, 299, -69, n=4)
+    [(9, -12), (22, -29), (35, -46), (48, -63)]
 
     """
     (x0, y0) = diophantine(a, b, c)  # Initial value
     d = greatest_common_divisor(a, b)
     p = a // d
     q = b // d
-
+    
+    solutions = []
     for i in range(n):
         x = x0 + i * q
         y = y0 - i * p
-        print(x, y)
+        solutions.append((x,y))
+    return solutions
 
 
 def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
@@ -83,11 +78,20 @@ def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
     (1, -2, 3)
 
     """
+
+    # ---- Your extended_gcd asserts a >= 0 and b >= 0. This is too restrictive — the algorithm works fine with negative integers. ----
+
+    
+    """
     assert a >= 0
     assert b >= 0
-
+"""
     if b == 0:
         d, x, y = a, 1, 0
+    elif a < 0 or b < 0:
+        sign = (-1 if a < 0 else 1, -1 if b < 0 else 1)
+        d, x, y = extended_gcd(abs(a), abs(b))
+        return (d, x * sign[0], y * sign[1])
     else:
         (d, p, q) = extended_gcd(b, a % b)
         x = q
@@ -102,8 +106,10 @@ def extended_gcd(a: int, b: int) -> tuple[int, int, int]:
 
 if __name__ == "__main__":
     from doctest import testmod
-
+"""
     testmod(name="diophantine", verbose=True)
     testmod(name="diophantine_all_soln", verbose=True)
     testmod(name="extended_gcd", verbose=True)
     testmod(name="greatest_common_divisor", verbose=True)
+"""
+    testmod(verbose=True)
